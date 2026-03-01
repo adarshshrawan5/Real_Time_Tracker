@@ -1,5 +1,8 @@
-const socket = io({
-    transports: ["websocket"]
+const socket = io();
+let myId;
+
+socket.on("connect", () => {
+    myId = socket.id;
 });
 
 if (navigator.geolocation) {
@@ -30,17 +33,22 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 
 const markers = {};
 
-socket.on("receive-location",  (data) => {
+let isFirstLocation = true;
+
+socket.on("receive-location", (data) => {
     const { id, latitude, longitude } = data;
-    map.setView([latitude, longitude],15);
-    if (markers[id]) {
-        markers[id].setLatLng([latitude, longitude]);
-    }
-    else {
-        markers[id] = L.marker([latitude, longitude]).addTo(map);
+
+    // Center only if it's YOU
+    if (id === myId) {
+        map.panTo([latitude, longitude], 15);
     }
 
-});                                      
+    if (markers[id]) {
+        markers[id].setLatLng([latitude, longitude]);
+    } else {
+        markers[id] = L.marker([latitude, longitude]).addTo(map);
+    }
+});
 
 socket.on("user-disconnected", (id) => {
     if (markers[id]) {
