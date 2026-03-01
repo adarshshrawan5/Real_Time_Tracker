@@ -1,4 +1,6 @@
-const socket = io();
+const socket = io({
+    transports: ["websocket"]
+});
 
 if (navigator.geolocation) {
 navigator.geolocation.watchPosition(
@@ -14,7 +16,7 @@ navigator.geolocation.watchPosition(
     },
     {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 30000,
         maximumAge: 0
     }
 );
